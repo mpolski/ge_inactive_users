@@ -87,3 +87,18 @@ Status,Email,LastLoginTime (UTC)
 Never Logged In,user1@example.com,
 Inactive,user2@example.com,2026-03-02T08:00:28.219475924Z
 ```
+
+## Permissions to run the script
+
+The script makes a GET request to the userLicenses endpoint: `.../userStores/default_user_store/userLicenses`.
+
+According to the documentation, the specific permission required to call this method is: `discoveryengine.userStores.listUserLicenses`
+
+This permission is typically included in the following predefined roles:
+
+- Discovery Engine Viewer (`roles/discoveryengine.viewer`)
+- Discovery Engine Editor (`roles/discoveryengine.editor`)
+- Discovery Engine Admin (`roles/discoveryengine.admin`)
+
+A user would need at least the Discovery Engine Viewer role assigned to run this script successfully.
+
