@@ -47,9 +47,43 @@ uv run python list_inactive_users.py
 ```
 *(Or `python list_inactive_users.py` if your venv is activated).*
 
+Example output:
+```
+Fetching licensed users from Project 'genai-whitlstd-rcf', Location 'global', User Store 'default_user_store'...
+Fetching from: https://discoveryengine.googleapis.com/v1beta/projects/genai-whitlstd-rcf/locations/global/userStores/default_user_store/userLicenses
+-> Found X licensed users.
+
+==================================================
+ USERS NEVER LOGGED IN
+==================================================
+user1@example.com
+
+==================================================
+ INACTIVE USERS (No activity in last 20 days)
+==================================================
+user2@example.com, 2026-03-02T08:00:28.219475924Z
+```
+
 ### 2. Export to CSV File
 To save the report as a standard CSV file (easily importable into Excel or Google Sheets):
 ```bash
 uv run python list_inactive_users.py --output filename.csv
 ```
 *(Note: When using `--output`, the full console report is suppressed for cleaner output).*
+
+Example output:
+```
+Fetching licensed users from Project 'genai-whitlstd-rcf', Location 'global', User Store 'default_user_store'...
+Fetching from: https://discoveryengine.googleapis.com/v1beta/projects/genai-whitlstd-rcf/locations/global/userStores/default_user_store/userLicenses
+-> Found X licensed users.
+
+Saving standard CSV report to inactive_users_list.csv...
+Report saved successfully.
+```
+
+Content of `inactive_users_list.csv`:
+```csv
+Status,Email,LastLoginTime (UTC)
+Never Logged In,user1@example.com,
+Inactive,user2@example.com,2026-03-02T08:00:28.219475924Z
+```
