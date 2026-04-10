@@ -49,8 +49,8 @@ uv run python list_inactive_users.py
 
 Example output:
 ```
-Fetching licensed users from Project 'genai-whitlstd-rcf', Location 'global', User Store 'default_user_store'...
-Fetching from: https://discoveryengine.googleapis.com/v1beta/projects/genai-whitlstd-rcf/locations/global/userStores/default_user_store/userLicenses
+Fetching licensed users from Project 'my-project', Location 'global', User Store 'default_user_store'...
+Fetching from: https://discoveryengine.googleapis.com/v1beta/projects/my-project/locations/global/userStores/default_user_store/userLicenses
 -> Found X licensed users.
 
 ==================================================
@@ -73,8 +73,8 @@ uv run python list_inactive_users.py --output filename.csv
 
 Example output:
 ```
-Fetching licensed users from Project 'genai-whitlstd-rcf', Location 'global', User Store 'default_user_store'...
-Fetching from: https://discoveryengine.googleapis.com/v1beta/projects/genai-whitlstd-rcf/locations/global/userStores/default_user_store/userLicenses
+Fetching licensed users from Project 'my-project', Location 'global', User Store 'default_user_store'...
+Fetching from: https://discoveryengine.googleapis.com/v1beta/projects/my-project/locations/global/userStores/default_user_store/userLicenses
 -> Found X licensed users.
 
 Saving standard CSV report to inactive_users_list.csv...
