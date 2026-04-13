@@ -71,6 +71,7 @@ def get_licensed_users(project_id, location, user_store_id):
 def main():
     parser = argparse.ArgumentParser(description="List inactive Gemini Enterprise users.")
     parser.add_argument("--output", help="Path to save the output report file.")
+    parser.add_argument("--dump-all", action="store_true", help="Dump all users sorted by last login time.")
     args = parser.parse_args()
 
     print(f"Fetching licensed users from Project '{PROJECT_ID}', Location '{LOCATION}', User Store '{USER_STORE_ID}'...")
@@ -82,62 +83,86 @@ def main():
         return
 
     now = datetime.now(timezone.utc)
-    inactive_users = []
-    never_logged_in = []
-
-    for item in users_data:
-        user = item['user']
-        last_login_dt = item['last_login_dt']
-        last_login_str = item['last_login_str']
+    
+    if args.dump_all:
+        # Sort users by last login time, most recent first. Handle None (never logged in) by putting them last.
+        sorted_users = sorted(
+            users_data, 
+            key=lambda x: x['last_login_dt'] or datetime.min.replace(tzinfo=timezone.utc), 
+            reverse=True
+        )
         
-        if last_login_dt is None:
-            never_logged_in.append(user)
+        if args.output:
+            print(f"Saving all users to CSV report: {args.output}...")
+            try:
+                with open(args.output, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Email', 'LastLoginTime (UTC)'])
+                    for item in sorted_users:
+                        writer.writerow([item['user'], item['last_login_str'] or 'Never Logged In'])
+                print("Report saved successfully.")
+            except Exception as e:
+                print(f"Error saving report: {e}")
         else:
-            delta = now - last_login_dt
-            if delta.days >= DAYS_INACTIVE:
-                # Format for tuples: (user, last_login_str)
-                inactive_users.append((user, last_login_str))
-
-    if args.output:
-        print(f"Saving standard CSV report to {args.output}...")
-        try:
-            with open(args.output, 'w', newline='') as f:
-                writer = csv.writer(f)
-                # Write header
-                writer.writerow(['Status', 'Email', 'LastLoginTime (UTC)'])
-                
-                # Write data
-                for user in sorted(never_logged_in):
-                    writer.writerow(['Never Logged In', user, ''])
-                for user, last_login in sorted(inactive_users, key=lambda x: x[0]):
-                    writer.writerow(['Inactive', user, last_login])
-            print("Report saved successfully.")
-        except Exception as e:
-            print(f"Error saving report: {e}")
+            print("==================================================")
+            print(" ALL USERS (Sorted by last login)")
+            print("==================================================")
+            for item in sorted_users:
+                print(f"{item['user']}, {item['last_login_str'] or 'Never Logged In'}")
     else:
-        # Human-readable output only when run without --output
-        report_content = []
-        report_content.append("==================================================")
-        report_content.append(" USERS NEVER LOGGED IN")
-        report_content.append("==================================================")
-        if not never_logged_in:
-            report_content.append("None.")
-        else:
-            for user in sorted(never_logged_in):
-                report_content.append(user)
-                
-        report_content.append(f"\n==================================================")
-        report_content.append(f" INACTIVE USERS (No activity in last {DAYS_INACTIVE} days)")
-        report_content.append("==================================================")
-        
-        if not inactive_users:
-            report_content.append("No users match this criteria.")
-        else:
-            for user, last_login in sorted(inactive_users, key=lambda x: x[0]):
-                report_content.append(f"{user}, {last_login}")
+        # Legacy/Default logic for inactive users
+        inactive_users = []
+        never_logged_in = []
 
-        for line in report_content:
-            print(line)
+        for item in users_data:
+            user = item['user']
+            last_login_dt = item['last_login_dt']
+            last_login_str = item['last_login_str']
+            
+            if last_login_dt is None:
+                never_logged_in.append(user)
+            else:
+                delta = now - last_login_dt
+                if delta.days >= DAYS_INACTIVE:
+                    inactive_users.append((user, last_login_str))
+
+        if args.output:
+            print(f"Saving standard CSV report to {args.output}...")
+            try:
+                with open(args.output, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Status', 'Email', 'LastLoginTime (UTC)'])
+                    for user in sorted(never_logged_in):
+                        writer.writerow(['Never Logged In', user, ''])
+                    for user, last_login in sorted(inactive_users, key=lambda x: x[0]):
+                        writer.writerow(['Inactive', user, last_login])
+                print("Report saved successfully.")
+            except Exception as e:
+                print(f"Error saving report: {e}")
+        else:
+            report_content = []
+            report_content.append("==================================================")
+            report_content.append(" USERS NEVER LOGGED IN")
+            report_content.append("==================================================")
+            if not never_logged_in:
+                report_content.append("None.")
+            else:
+                for user in sorted(never_logged_in):
+                    report_content.append(user)
+                    
+            report_content.append(f"\n==================================================")
+            report_content.append(f" INACTIVE USERS (No activity in last {DAYS_INACTIVE} days)")
+            report_content.append("==================================================")
+            
+            if not inactive_users:
+                report_content.append("No users match this criteria.")
+            else:
+                for user, last_login in sorted(inactive_users, key=lambda x: x[0]):
+                    report_content.append(f"{user}, {last_login}")
+
+            for line in report_content:
+                print(line)
+
 
 if __name__ == "__main__":
     main()

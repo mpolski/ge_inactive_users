@@ -88,6 +88,18 @@ Never Logged In,user1@example.com,
 Inactive,user2@example.com,2026-03-02T08:00:28.219475924Z
 ```
 
+### 3. Dump All Users (Sorted by Activity)
+
+To list all users sorted by their last login time (most recent first):
+```bash
+uv run python list_inactive_users.py --dump-all
+```
+
+To save all users to a CSV file:
+```bash
+uv run python list_inactive_users.py --dump-all --output all_users.csv
+```
+
 ## Permissions to run the script
 
 The script makes a GET request to the userLicenses endpoint: `.../userStores/default_user_store/userLicenses`.
